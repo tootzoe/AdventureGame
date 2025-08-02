@@ -59,13 +59,15 @@ HEADERS += \
     AdventurePrj/Public/AdventureCharacter.h \
     AdventurePrj/Public/AdventureGM.h \
     AdventurePrj/Public/Data/ItemData.h \
-    AdventurePrj/Public/Data/ItemDefinition.h
+    AdventurePrj/Public/Data/ItemDefinition.h \
+    AdventurePrj/Public/PickupBase.h
 
 SOURCES += \
     AdventurePrj/AdventurePrj.cpp \
     AdventurePrj/Private/AdventureCharacter.cpp \
     AdventurePrj/Private/AdventureGM.cpp \
-    AdventurePrj/Private/Data/ItemDefinition.cpp
+    AdventurePrj/Private/Data/ItemDefinition.cpp \
+    AdventurePrj/Private/PickupBase.cpp
 
 DISTFILES += \
     AdventurePrj.Target.cs \
