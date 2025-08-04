@@ -64,6 +64,7 @@ HEADERS += \
     AdventurePrj/Public/EquippableToolBase.h \
     AdventurePrj/Public/InventoryComp.h \
     AdventurePrj/Public/PickupBase.h \
+    AdventurePrj/Public/Projectile/FirstPersionProjectile.h \
     AdventurePrj/Public/Tools/DartLauncher.h
 
 SOURCES += \
@@ -75,6 +76,7 @@ SOURCES += \
     AdventurePrj/Private/EquippableToolBase.cpp \
     AdventurePrj/Private/InventoryComp.cpp \
     AdventurePrj/Private/PickupBase.cpp \
+    AdventurePrj/Private/Projectile/FirstPersionProjectile.cpp \
     AdventurePrj/Private/Tools/DartLauncher.cpp
 
 DISTFILES += \

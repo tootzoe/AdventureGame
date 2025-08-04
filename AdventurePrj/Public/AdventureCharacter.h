@@ -57,6 +57,9 @@ public:
   void AttachTool(UEquippableToolDefinition* ToolDefinition);
   UFUNCTION(  )
   void GiveItem(UItemDefinition* ItemDefinition);
+  //
+  UFUNCTION(  )
+  FVector GetCameraTargetLocation( );
 
 
 

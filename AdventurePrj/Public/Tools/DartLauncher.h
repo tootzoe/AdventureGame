@@ -6,6 +6,9 @@
 #include "EquippableToolBase.h"
 #include "DartLauncher.generated.h"
 
+
+class AFirstPersionProjectile;
+
 /**
  * 
  */
@@ -17,4 +20,10 @@ class ADVENTUREPRJ_API ADartLauncher : public AEquippableToolBase
 public:
        virtual void UseMe() override;
       virtual void BindInputAction(const UInputAction *ActionToBind) override;
+
+
+    UPROPERTY(EditAnywhere,  Category="TOOT")
+      TSubclassOf<AFirstPersionProjectile> ProjectileClass;
+
+
 };

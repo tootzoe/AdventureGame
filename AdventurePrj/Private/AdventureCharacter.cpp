@@ -18,6 +18,8 @@
 #include "Data/EquippableToolDefinition.h"
 #include "InventoryComp.h"
 #include "EquippableToolBase.h"
+#include "Engine/HitResult.h"
+#include "TimerManager.h"
 
 
 
@@ -113,8 +115,8 @@ void AAdventureCharacter::AttachTool(UEquippableToolDefinition *ToolDefinition)
         toolToEquip->AttachToActor(this, attachmentRules);
         toolToEquip->AttachToComponent(FirstPersionSkelMeshComp, attachmentRules, FName(TEXT("HandGrip_R")));
         toolToEquip->AttachToComponent(GetMesh(), attachmentRules, FName(TEXT("HandGrip_R")));
-        FirstPersionSkelMeshComp->SetAnimInstanceClass(toolToEquip->FirstPersionToolAnim->GeneratedClass);
-        GetMesh()->SetAnimInstanceClass(toolToEquip->ThirdPersionToolAnim->GeneratedClass);
+     //   FirstPersionSkelMeshComp->SetAnimInstanceClass(toolToEquip->FirstPersionToolAnim->GeneratedClass);  //tootzoe
+     //   GetMesh()->SetAnimInstanceClass(toolToEquip->ThirdPersionToolAnim->GeneratedClass);
 
         MainInventoryComp->ToolInventory.Add(ToolDefinition);
         toolToEquip->OwningCharacter  = this;
@@ -152,6 +154,27 @@ void AAdventureCharacter::GiveItem(UItemDefinition *ItemDefinition)
     }
 }
 
+FVector AAdventureCharacter::GetCameraTargetLocation()
+{
+
+    FVector targetPos;
+
+    UWorld* const world = GetWorld();
+
+    if(world ){
+        FHitResult hit;
+        const FVector traceStart = FirstPersionCameraComp->GetComponentLocation();
+        const FVector traceEnd = traceStart + FirstPersionCameraComp->GetForwardVector() * 10000.f;
+
+        world->LineTraceSingleByChannel(hit, traceStart, traceEnd, ECC_Visibility );
+
+        targetPos = hit.bBlockingHit ? hit.ImpactPoint : hit.TraceEnd;
+    }
+
+
+    return targetPos;
+}
+
 
 
 // Called when the game starts or when spawned
@@ -164,9 +187,17 @@ void AAdventureCharacter::BeginPlay()
 
     FirstPersionSkelMeshComp->SetOnlyOwnerSee(true);
     //
-    if(ensureAlways(FirstPersionDefaultAnim != nullptr)){
-      FirstPersionSkelMeshComp->SetAnimInstanceClass(FirstPersionDefaultAnim->GeneratedClass);
+    if(ensureAlways(FirstPersionDefaultAnim != nullptr)){  // here, can't setup FirstPersionDefaultAnim properly on release build,
+     // FirstPersionSkelMeshComp->SetAnimInstanceClass(FirstPersionDefaultAnim->GeneratedClass); // we disable animation temploraly
     }
+    // else{
+
+    //     GetWorld()->GetTimerManager().SetTimerForNextTick([&](){
+    //         if(ensureAlways(FirstPersionDefaultAnim != nullptr)){
+    //           FirstPersionSkelMeshComp->SetAnimInstanceClass(FirstPersionDefaultAnim->GeneratedClass);
+    //         }
+    //     });
+    // }
 
 	
 }
