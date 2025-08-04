@@ -10,7 +10,9 @@
  class UInputAction;
  class UAnimBlueprint;
 
-
+ class UEquippableToolDefinition;
+ class UInventoryComp;
+ class AEquippableToolBase;
 
 
 UCLASS()
@@ -38,6 +40,9 @@ public:
     //
     UPROPERTY(EditAnywhere, Category="TOOT Animation")
     TObjectPtr<UAnimBlueprint> FirstPersionDefaultAnim;
+    //
+    UPROPERTY(VisibleAnywhere, Category="TOOT Inventory")
+    TObjectPtr<UInventoryComp> MainInventoryComp;
 
 
 
@@ -45,6 +50,14 @@ public:
   void FirstPersionMove(const FInputActionValue& Value);
   UFUNCTION(  )
   void FirstPersionLook(const FInputActionValue& Value);
+  UFUNCTION(  )
+  bool IsToolAlreadyOwned(UEquippableToolDefinition* ToolDefinition);
+  //
+  UFUNCTION(  )
+  void AttachTool(UEquippableToolDefinition* ToolDefinition);
+  UFUNCTION(  )
+  void GiveItem(UItemDefinition* ItemDefinition);
+
 
 
 protected:
@@ -66,7 +79,11 @@ protected:
 
 
     //
-
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="TOOT")
+    TObjectPtr<UInputAction> UseToolAction;
+    //
+    UPROPERTY(VisibleAnywhere , BlueprintReadOnly, Category="TOOT")
+    TObjectPtr<AEquippableToolBase> EquippableTool;
 
 
 public:	

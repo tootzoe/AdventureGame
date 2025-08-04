@@ -20,6 +20,8 @@ class ADVENTUREPRJ_API UItemDefinition : public UDataAsset
 
  public:
 
+   virtual UItemDefinition* CreateItemCopy() const;
+
 	
     UPROPERTY(EditAnywhere, Category="TOOT Item Data")
     FName ID;

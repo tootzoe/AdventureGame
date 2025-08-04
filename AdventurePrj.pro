@@ -58,16 +58,24 @@ HEADERS += \
     AdventurePrj/AdventurePrj.h \
     AdventurePrj/Public/AdventureCharacter.h \
     AdventurePrj/Public/AdventureGM.h \
+    AdventurePrj/Public/Data/EquippableToolDefinition.h \
     AdventurePrj/Public/Data/ItemData.h \
     AdventurePrj/Public/Data/ItemDefinition.h \
-    AdventurePrj/Public/PickupBase.h
+    AdventurePrj/Public/EquippableToolBase.h \
+    AdventurePrj/Public/InventoryComp.h \
+    AdventurePrj/Public/PickupBase.h \
+    AdventurePrj/Public/Tools/DartLauncher.h
 
 SOURCES += \
     AdventurePrj/AdventurePrj.cpp \
     AdventurePrj/Private/AdventureCharacter.cpp \
     AdventurePrj/Private/AdventureGM.cpp \
+    AdventurePrj/Private/Data/EquippableToolDefinition.cpp \
     AdventurePrj/Private/Data/ItemDefinition.cpp \
-    AdventurePrj/Private/PickupBase.cpp
+    AdventurePrj/Private/EquippableToolBase.cpp \
+    AdventurePrj/Private/InventoryComp.cpp \
+    AdventurePrj/Private/PickupBase.cpp \
+    AdventurePrj/Private/Tools/DartLauncher.cpp
 
 DISTFILES += \
     AdventurePrj.Target.cs \

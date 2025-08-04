@@ -7,13 +7,17 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Engine/World.h"
 
 #include "GameFramework/PlayerController.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimBlueprint.h"
-
+//
+#include "Data/EquippableToolDefinition.h"
+#include "InventoryComp.h"
+#include "EquippableToolBase.h"
 
 
 
@@ -44,6 +48,9 @@ AAdventureCharacter::AAdventureCharacter()
     FirstPersionCameraComp->bEnableFirstPersonScale = true;
     FirstPersionCameraComp->FirstPersonFieldOfView = FirstPersionFOV;
     FirstPersionCameraComp->FirstPersonScale = FirstPersionViewScale;
+    //
+    MainInventoryComp = CreateDefaultSubobject<UInventoryComp>(TEXT("InventoryComp"));
+    check(MainInventoryComp != nullptr);
 
 
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -78,6 +85,70 @@ void AAdventureCharacter::FirstPersionLook(const FInputActionValue &Value)
     if(Controller){
         AddControllerYawInput(  val.X);
         AddControllerPitchInput(  val.Y);
+    }
+}
+
+bool AAdventureCharacter::IsToolAlreadyOwned(UEquippableToolDefinition *ToolDefinition)
+{
+    for (auto it : MainInventoryComp->ToolInventory) {
+
+        if(it->ID == ToolDefinition->ID)
+        {
+            return true;
+        }
+
+    }
+
+    return false;
+}
+
+void AAdventureCharacter::AttachTool(UEquippableToolDefinition *ToolDefinition)
+{
+
+    if(not IsToolAlreadyOwned(ToolDefinition)){
+
+        AEquippableToolBase* toolToEquip = GetWorld()->SpawnActor<AEquippableToolBase>(ToolDefinition->ToolAsset , GetActorTransform());
+        FAttachmentTransformRules attachmentRules(EAttachmentRule::SnapToTarget ,  true);
+
+        toolToEquip->AttachToActor(this, attachmentRules);
+        toolToEquip->AttachToComponent(FirstPersionSkelMeshComp, attachmentRules, FName(TEXT("HandGrip_R")));
+        toolToEquip->AttachToComponent(GetMesh(), attachmentRules, FName(TEXT("HandGrip_R")));
+        FirstPersionSkelMeshComp->SetAnimInstanceClass(toolToEquip->FirstPersionToolAnim->GeneratedClass);
+        GetMesh()->SetAnimInstanceClass(toolToEquip->ThirdPersionToolAnim->GeneratedClass);
+
+        MainInventoryComp->ToolInventory.Add(ToolDefinition);
+        toolToEquip->OwningCharacter  = this;
+        EquippableTool = toolToEquip;
+
+
+        if(APlayerController* p = Cast<APlayerController>(Controller)){
+            if(UEnhancedInputLocalPlayerSubsystem* locSubSys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(p->GetLocalPlayer())){
+                locSubSys->AddMappingContext(toolToEquip->ToolInputMappingCtx , 1);
+              }
+            toolToEquip->BindInputAction(UseToolAction);
+        }
+
+    }
+}
+
+void AAdventureCharacter::GiveItem(UItemDefinition *ItemDefinition)
+{
+    switch (ItemDefinition->ItemType) {
+    case EItemType::E_Tool:{
+        UEquippableToolDefinition* toolEqui = Cast<UEquippableToolDefinition>(ItemDefinition);
+        if(toolEqui){
+            AttachTool(toolEqui);
+        }else{
+            UE_LOG(LogTemp, Warning, TEXT("Try to equip invalid tool....%hs") , __func__);
+        }
+
+    }
+        break;
+    case EItemType::E_Consumable:
+
+        break;
+    default:
+        break;
     }
 }
 

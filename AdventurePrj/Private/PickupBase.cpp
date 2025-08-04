@@ -19,16 +19,17 @@
 // Sets default values
 APickupBase::APickupBase()
 {
+    SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+    check(SphereComp != nullptr);
+
+    SetRootComponent(SphereComp);
+     SphereComp ->SetSphereRadius(32.f);
 
     PickupMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupMesh"));
     check(PickupMeshComp != nullptr);
 
 
-    SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
-    check(SphereComp != nullptr);
-
-   SphereComp ->SetupAttachment(PickupMeshComp);
-   SphereComp ->SetSphereRadius(32.f);
+    PickupMeshComp  ->SetupAttachment(SphereComp);
 
 
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -37,21 +38,25 @@ APickupBase::APickupBase()
 
 void APickupBase::initializePickup()
 {
-    if( GEngine ){
-        GEngine->AddOnScreenDebugMessage(-1, 16.f, FColor::Yellow, FString::Printf(TEXT("%hs....") , __func__) );
+
+    if( ! ensureAlways( ! PickupDataTable.IsNull()  ) )
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 16.f, FColor::Yellow, FString::Printf(TEXT("%hs....PickupDataTable not set....") , __func__) );
+        return;
     }
 
-    if(PickupDataTable && !PickupItemID.IsNone() )
+    if( !PickupDataTable.IsValid() ){
+         PickupDataTable.LoadSynchronous();
+    }
+
+    if( ensureAlways( !PickupItemID.IsNone() ) )
     {
         const FItemData* itRow = PickupDataTable->FindRow<FItemData>(PickupItemID, PickupItemID.ToString());
 
-        RefItem = NewObject<UItemDefinition>(this, MakeUniqueObjectName(this, UItemDefinition::StaticClass()));
-        RefItem->ID = itRow->ID;
-        RefItem->ItemType = itRow->ItemType;
-        RefItem-> ItemText = itRow->ItemText;
-        RefItem->WorldMesh = itRow->ItemBase->WorldMesh;
-
         UItemDefinition* tmpIt = itRow->ItemBase.Get();
+
+        RefItem = tmpIt->CreateItemCopy();
+
 
         if (tmpIt->WorldMesh.IsValid()) {
             PickupMeshComp->SetStaticMesh(tmpIt->WorldMesh.Get());
@@ -66,9 +71,8 @@ void APickupBase::initializePickup()
         SphereComp->OnComponentBeginOverlap. AddDynamic(this, &APickupBase::OnSphereBeginOverlap);
 
     }
-
-
 }
+
 
 // Called when the game starts or when spawned
 void APickupBase::BeginPlay()
@@ -84,12 +88,14 @@ void APickupBase::OnSphereBeginOverlap(UPrimitiveComponent *OverlappedComponent,
 {
 
     if( GEngine ){
-        GEngine->AddOnScreenDebugMessage(-1, 16.f, FColor::Green, FString::Printf(TEXT("%hs....attempting a pickup collision....") , __func__) );
+        GEngine->AddOnScreenDebugMessage(-1, 16.f, FColor::Green, FString::Printf(TEXT("%hs....Attempting a pickup collision....") , __func__) );
     }
 
     AAdventureCharacter* c = Cast<AAdventureCharacter>(OtherActor);
-    if(c != nullptr)
+    if(c  )
     {
+        c->GiveItem(RefItem);
+
         SphereComp->OnComponentBeginOverlap.RemoveAll(this);
         PickupMeshComp->SetVisibility(false);
         PickupMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -112,7 +118,7 @@ void APickupBase::Tick(float DeltaTime)
 }
 
 
-
+#if WITH_EDITOR
 void APickupBase::PostEditChangeProperty(FPropertyChangedEvent &PropertyChangedEvent)
 {
     Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -133,3 +139,4 @@ void APickupBase::PostEditChangeProperty(FPropertyChangedEvent &PropertyChangedE
     }
 
 }
+#endif
